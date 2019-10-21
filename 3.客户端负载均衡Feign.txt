@@ -1,0 +1,42 @@
+1. Feign 是什么呢？
+    Feign 是对 Ribbon的封装，使用注解的方式，调用起来更简单。。。 也是主流的方式~
+
+    @FeignClient(value = "PRODUCT-DATA-SERVICE")
+    public interface ProductClientFeign {
+
+        @GetMapping("/products")
+        public List<Product> listProdcuts();
+    }
+
+2. 创建子项目，配置 pom.xml 文件：
+    1. 添加 spring-cloud-starter-netflix-eureka-client，对 Eureka 客户端的支持
+    2. 添加 spring-boot-starter-web， 对 web 的支持
+    3. 添加 spring-cloud-starter-openfeign， 对 Feign 的支持（需要使用 Feign 必须要有这个依赖）
+    4. 添加 spring-boot-starter-thymeleaf 对 thymeleaf 的支持
+
+3. 使用 Feign：
+    使用 Feign 可以访问指定的微服务，访问的时候是通过 微服务名（spring boot 的应用名）来访问的，
+    不需要使用 url 和端口号，使用代码如下：
+
+    //这里就是访问微服务，然后从微服务的指定路径获取到 数据
+    @FeignClient(value="PRODUCTDATASERVICE")        //表示使用 Feign 来访问 指定名称的微服务
+    public interface ProductClientFeign {
+        @GetMapping("/listProduct")                 //访问微服务的哪个路径
+        List<Product> listProduct();
+    }
+
+    注意：一定需要指定访问的路径，否则 Feign 不知道该访问哪个 Controller。
+
+4. 启动类的设置：
+    在 Ribbon 的基础上 额外增加了如下注解：
+    1. 原先有的注解为：@SpringBootApplication, @EnableEurekaClient, @EnableDiscoveryClient
+    2. 添加注解 @EnableFeignClients： 表示用于使用 Feign 方式， 也表示该应用是 Feign 客户端
+    3. 不需要添加 Ribbon 中 的 RestTemplate 对象的函数
+
+5. application.yml 的配置
+    1. 配置应用程序名
+    2. 配置端口
+    3. 配置 thymeleaf
+    4. 访问注册中心
+
+6. 启动顺序是和 Ribbon 一样都是在 数据微服务之后启动的。

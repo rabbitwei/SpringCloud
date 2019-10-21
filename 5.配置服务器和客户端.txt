@@ -1,0 +1,57 @@
+注意: 这里的配置服务器不是去配置服务器，而是创建一个存放配置信息的服务器。
+
+0. 配置服务的需要
+    需求： 有时候，微服务要做集群，这就意味着，会有多个微服务实例。 在业务上有时候需要修改一些配置信息，
+           比如说 版本信息吧~ 倘若没有配置服务， 那么就需要挨个修改微服务，挨个重新部署微服务，这样就比较麻烦。
+
+    解决：为了偷懒， 这些配置信息就会放在一个公共的地方，比如git, 然后通过配置服务器把它获取下来，
+          然后微服务再从配置服务器上取下来。这样只要修改git上的信息，那么同一个集群里的所有微服务都立即获取相应信息了，
+          这样就大大节约了开发，上线和重新部署的时间了。
+
+--------------------------------------配置服务器-------------------------------------------
+1. 创建配置服务器前：
+    需要在 github 中创建一个仓库。然后在本地创建与仓库名相同的目录，
+    再创建一个 子目录（与配置服务器的 application.yml 有关联）, 子目录里面创建
+    配置文件（以 properties 为后缀名）。然后整个文件夹上传到 github 上。
+
+（配置服务器的作用：获取远程的配置信息，然后给其他需要该配置信息的微服务使用）
+2.  创建配置服务的子项目， 配置 pom.xml 文件：
+    1. 添加对 Eureka 客户端的支持， 配置服务器本质上还是一个 Eureka 客户端
+    2. 添加 spring boot 对 web 的支持
+    3. 添加组件 spring-cloud-config-server， 表示对配置服务器的支持（主要）
+
+3. 修改启动类：
+    在原 Eureka 客户端的支持上添加对配置服务器支持的注解
+    1. 原注解有：
+        @SpringBootApplication      //表示这是一个 SpringBootApplication 应用
+        @EnableEurekaClient         //Eureka客户端
+        @EnableDiscoveryClient      //表示用于发现 eureka 注册中心的微服务。
+    2. 新增注解 @EnableConfigServer         //这个注解表示本 springBoot 是个配置服务器。
+
+4. 添加 application.yml 配置文件（需要创建 resources 目录）：
+    1. 设置 spring boot 的应用程序名
+    2. 设置访问注册中心的 url
+    3. 设置配置服务器的端口号，最好使用 8030
+    4. 重点：配置获取远程配置信息的 url，分支和目录，配置如下，
+
+        spring:
+          application:
+          #应用程序名
+            name: configServer
+        #配置spring cloud 获取 github仓库的信息
+          cloud:
+            config:
+        #表示分支
+              label: master
+              server:
+                git:
+        #表示仓库的 git 地址
+                  uri: https://github.com/rabbitwei/springcloudConfig/
+        #表示仓库的子目录
+                  search-paths: rep
+
+5. 启动：
+    先启动 EurekaServerApplication， 再启动 ConfigServerApplication， 然后访问
+    http://localhost:8030/version/dev，其中version  和 dev 是作用参数传递进去。
+
+--------------------------------------配置服务器-------------------------------------------

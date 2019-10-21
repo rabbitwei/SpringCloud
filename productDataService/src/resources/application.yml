@@ -1,0 +1,17 @@
+#表示该 spring boot 的应用程序名
+spring:
+  application:
+    name: productDataService
+#配置链路追踪， zipkin 的默认端口为 9411
+  zipkin:
+    base-url: http://localhost:9411
+
+#访问注册中心
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+#一定要设置端口
+server:
+  port: 8002

@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: productViewServiceRibbon
+  thymeleaf:
+    mode: html5
+    cache: false
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+    prefix: classpath:/templates/
+    suffix: .html
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+server:
+  port: 8010
+

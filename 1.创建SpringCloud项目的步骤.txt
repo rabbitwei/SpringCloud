@@ -1,0 +1,65 @@
+1. 首先使用 idea 创建一个 父子项目（注意：父项目和所有的子项目最好都是使用 Maven 来创建，
+有其他博客是通过 spring boot 的方式来创建的，但是尝试之后失败了。）
+
+2. 修改父项目的 pom.xml 的内容，添加如下代码， 删除父项目的 src 文件，没什么用
+    <!--
+        重点关注 parent 和 properties标签中 spring-cloud.version 标签
+        parent 标签：表示该项目的父项目是 spring boot,注意版本是 2.0.3
+        properties标签中 spring-cloud.version 标签： 表示该版本的 spring cloud 是 Finchley 版本
+    -->
+      <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <!--注意一下：依赖 springboot 版本是 2.0.3-->
+        <version>2.0.3.RELEASE</version>
+        <relativePath/>
+      </parent>
+
+      <!--springcloud 用的版本是 Finchley-->
+      <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <spring-cloud.version>Finchley.RELEASE</spring-cloud.version>
+      </properties>
+
+*添加 Eureka 服务端（暂时只有一个）
+EurekaServer ，它扮演的角色是注册中心，用于注册各种微服务，以便于其他微服务找到和访问。
+3.在父项目下添加 model, 使用 Maven 创建，表示该分布式的注册中心或者是 Eureka 服务器类
+    3.1 注意 eureka 服务器类需要在 pom.xml 中添加如下依赖
+        <!--spring-cloud-starter-netflix-eureka-server 表示这是个 eureka 服务端。-->
+       <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+       </dependency>
+    3.2 修改 model 的启动类为 SpringBoot 应用程序（添加注解@SpringBootApplication），
+        并设置为 Eureka 的服务端 （添加注解@EnableEurekaServer），启动类使用
+         new SpringApplicationBuilder(EurekaServerApplication.class).run(args); 来启动
+    3.3 启动之前，先配置信息（在 src 目录下添加 resources 目录， 并添加 application.yml 配置文件，
+        resources 默认没有的）
+        配置文件主要设置的是该 Eureka 服务端的 端口， 对外的被访问 url地址, 应用程序名
+
+*添加 Eureka 客户端（可以多个）
+4.在父项目下添加 model, 使用 Maven 创建，表示该分布式的客户端
+    4.1 修改 pom.xml ，添加如下依赖
+        <--添加对 eureka 客户端的支持-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+        <!--添加对 web 的支持-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    4.2 修改 model 的启动类为 SpringBoot 应用程序（添加注解@SpringBootApplication），
+        并设置为 Eureka 的客户端 （添加注解@EnableEurekaClient），启动类使用
+        new SpringApplicationBuilder(ProductDataService.class).run(args);
+    4.3 启动之前也需要添加 application.yml， 类似上面的 3.3步骤。不过不同的是这个是客户端，
+        上面的服务端。主要设置端口，应用程序名，设置访问注册中心的url地址（即访问服务端）
+
+
+5.注意
+    5.1 每个应用都需要设置端口，并且服务端的端口最好是 8761,其他的只要不冲突就行了
+    5.2 启动应用的顺序是： Eureka 服务端，Eureka 客户端。
+    5.3 命名要规范

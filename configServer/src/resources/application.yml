@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: configServer
+#配置spring cloud 获取 github仓库的信息
+  cloud:
+    config:
+#表示分支
+      label: master
+      server:
+        git:
+#表示仓库的 git 地址
+          uri: https://github.com/rabbitwei/springcloudConfig/
+#表示目录
+          search-paths: rep
+
+#版本配置服务器使用的端口是 8030
+server:
+  port: 8030
+
+#访问注册中心
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+

@@ -1,0 +1,81 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <!--创建 Maven 项目的时候已存在-->
+    <groupId>cn.rabbit</groupId>
+    <artifactId>springcloud</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <!--当有子项目的时候，这里会多个 modules 标签， 列出子项目的名字-->
+    <modules>
+        <module>eurekaServer</module>
+        <module>productDataService</module>
+        <module>productViewServiceRibbon</module>
+        <module>productViewServiceFeign</module>
+        <module>configServer</module>
+    </modules>
+
+    <!--创建 Maven 项目的时候已存在-->
+    <name>springcloud</name>
+    <description>springcloud</description>
+    <packaging>pom</packaging>
+
+    <!--
+      重点关注 parent 和 properties标签中 spring-cloud.version 标签
+      parent 标签：表示该项目的父项目是 spring boot,注意版本是 2.0.3
+      properties标签中 spring-cloud.version 标签： 表示该版本的 spring cloud 是 Finchley 版本
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <!--注意一下：依赖 springboot 版本是 2.0.3-->
+        <version>2.0.3.RELEASE</version>
+        <relativePath/>
+    </parent>
+
+    <!--springcloud 用的版本是 Finchley-->
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+        <spring-cloud.version>Finchley.RELEASE</spring-cloud.version>
+    </properties>
+
+    <!--父项目的依赖项没有添加什么， 只是 hutool 是一个第三方工具类-->
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>4.3.1</version>
+        </dependency>
+
+        <!--添加对 zipkin 链路追踪的支持
+               注意不要使用 2.0.0 版本的 zipkin。-->
+        <!--因为子项目都几乎需要该 zipkin 的依赖，所以在父项目中添加， 子项目获取就行了-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-zipkin</artifactId>
+            <version>2.1.2.RELEASE</version>
+        </dependency>
+    </dependencies>
+
+    <!--创建 Maven 项目的时候已存在-->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>
