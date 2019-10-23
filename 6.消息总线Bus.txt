@@ -1,0 +1,104 @@
+0. 需求：
+    之前的虽然配置了configServer, 也把 视图服务改造成了配置客户端，但是当需要刷新配置信息的时候，
+    不得不既重启 configServer, 又重启微服务。 这样的体验当然是不太好的。 我们当然是希望 git
+    上的配置信息修改之后，就可以自动地刷新到微服务里，而不是需要手动重启才可以。
+
+1. 通过使用消息中间件（rabbitMQ）来解决问题
+    springCloud 通过 rabbitMQ 来进行消息广播，以达到有配置信息发生改变的时候，广播给多个微服务的效果。
+
+2. 使用步骤：
+    0. 修改需要使用 git 上配置信息的微服务， 这里是 Feign 视图微服务是需要使用该配置信息
+    1. 修改 Feign 微服务的 pom.xml 文件，再原基础上添加如下配置：
+        1. 添加 spring-boot-starter-actuator  用于访问路径：/actuator/bus-refresh
+        2. 添加 spring-cloud-starter-bus-amqp 用于支持 rabbitmq
+    2. 修改 Feign 微服务的 bootstrap.yml 配置文件， 在原基础上添加如下配置：
+        1. 新增 bus 总线的配置
+            spring:
+              cloud:
+                #原有的
+                config:
+                  label: master
+                  profile: dev
+                  discovery:
+                    enabled:  true
+                    serviceId:  config-server
+                #新增的配置
+                bus:
+                  enabled: true
+                  trace:
+                    enabled: true
+              #原有的
+              client:
+                serviceUrl:
+                  defaultZone:  http://localhost:8761/eureka/
+
+        2. 新增 rabbitMQ 配置
+        rabbitmq:
+          host: localhost
+          port: 5672
+          username: guest
+          password: guest
+    3. 修改 Feign 微服务的 application.yml 配置文件， 在原基础上添加如下配置：
+        #新增路径访问允许， 这样才能访问 /actuator/bus-refresh
+        management:
+          endpoints:
+            web:
+              exposure:
+                include: "*"
+              cors:
+                allowed-origins: "*"
+                allowed-methods: "*"
+
+    4. 修改 Feign 微服务的启动类， 添加对 RabbitMQ 服务的端口检测
+        //判断 rabiitMQ 是否启动
+        int rabbitMQPort = 5672;
+        if(NetUtil.isUsableLocalPort(rabbitMQPort)) {
+            System.err.printf("未在端口%d 发现 rabbitMQ服务，请检查rabbitMQ 是否启动", rabbitMQPort );
+            System.exit(1);
+        }
+    5. 在 Feign 微服务中添加工具类，该工具类的作用是：使用 post 的方式访问 http://localhost:8012/actuator/bus-refresh 地址，
+       因为它不支持 get 方式访问，直接把这个地址放在浏览器里，是会抛出 405错误的。所以需要该工具类。
+       public class FreshConfigUtil {
+           public static void main(String[] args) {
+               HashMap<String,String> headers =new HashMap<>();
+               headers.put("Content-Type", "application/json; charset=utf-8");
+               System.out.println("因为要去git获取，还要刷新config-server, 会比较卡，所以一般会要好几秒才能完成，请耐心等待");
+
+               String result = HttpUtil.createPost("http://localhost:8012/actuator/bus-refresh")
+               .addHeaders(headers).execute().body();
+               System.out.println("result:"+result);
+               System.out.println("refresh 完成");
+           }
+       }
+       1. 该工具类需要在每次修改配置信息之后启动，
+       2. http://localhost:8012/actuator/bus-refresh 地址的作用就是让 configServer 去 github
+          获取最新的配置信息，并把此信息广播给视图微服务。
+
+
+3. 对服务链路追踪的影响：
+    因为视图服务进行了改造，支持了 rabbitMQ, 那么在默认情况下，它的信息就不会进入 Zipkin了。 在Zipkin 里看不到视图服务的资料了。
+    为了解决这个问题，在启动 Zipkin 的时候 带一个参数就好了：--zipkin.collector.rabbitmq.addresses=localhost
+    即本来是：
+        java -jar zipkin-server-2.10.1-exec.jar
+    现在改成了
+        java -jar zipkin-server-2.10.1-exec.jar --zipkin.collector.rabbitmq.addresses=localhost
+
+    注： 启动 zipkin 之后，需要先访问业务地址（即先通过视图微服务访问数据微服务）才可以看到依赖关系。
+
+4. 执行结果：
+    为了观察到配置信息被广播在多个微服务里的效果，需要按照顺序做如下事情：
+    1. 首先挨个启动 EurekaServerApplication, ConfigServerApplication, ProductDataServiceApplication
+    2. 然后启动视图微服务 ProductViewServiceFeignApplication
+    3. 此时访问
+        http://127.0.0.1:8012/listProduct
+        注意：github 上的配置信息还没有修改。
+    4. 修改 git 里的版本号为新的数值
+    5. 然后运行 Feign 微服务下的工具类 FreshConfigUtil，
+        作用： 使用 post 的方式访问 http://localhost:8012/actuator/bus-refresh 地址，
+               这个地址的作用就是让 configServer 去 github 获取最新的配置信息，并把此信息广播给 视图微服务。
+    6. 重新访问
+            http://127.0.0.1:8012/listProduct
+        此时的版本号是修改后的值。
+
+
+

@@ -18,7 +18,7 @@
     使用 Feign 可以访问指定的微服务，访问的时候是通过 微服务名（spring boot 的应用名）来访问的，
     不需要使用 url 和端口号，使用代码如下：
 
-    //这里就是访问微服务，然后从微服务的指定路径获取到 数据
+    //这里就是访问微服务，然后从微服务的指定控制器(映射成了路径)获取到 数据
     @FeignClient(value="PRODUCTDATASERVICE")        //表示使用 Feign 来访问 指定名称的微服务
     public interface ProductClientFeign {
         @GetMapping("/listProduct")                 //访问微服务的哪个路径

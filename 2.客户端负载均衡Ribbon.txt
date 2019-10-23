@@ -6,8 +6,8 @@
             Feign 是对 Ribbon的封装，调用起来更简单（更多使用的是 Feign, 而很少使用 Ribbon）
 
 2. 什么是客户端负载均衡?
-    在前面 注册数据微服务 里，注册了8001和8002两个微服务， Ribbon 会从注册中心获知这个信息，
-    然后由 Ribbon 这个客户端自己决定是调用哪个，这个就叫做客户端负载均衡。
+    在前面 注册数据微服务 里，注册了8001和8002两个微服务（其实是一个 model 修改端口后启动了两次），
+    Ribbon 会从注册中心获知这个信息，然后由 Ribbon 这个客户端自己决定是调用哪个，这个就叫做客户端负载均衡。
 
 3. 配置 Ribbon 子项目的 pom.xml：
     1. 添加 spring boot 对 web 的支持
@@ -15,10 +15,11 @@
     4. 添加 spring boot 对 thymeleaf 的支持
 
 4. 使用 Ribbon：
-    通过 RestTemplate 来调用，调用方式如下：
-        //注意看，这里只是指定了要访问的微服务名称和访问的路径，但是并没有指定端口号到底是 8001, 还是 8002.
+    新建一个客户端类，通过 RestTemplate 来调用，调用方式如下：
+        //注意看，这里只是指定了要访问的微服务名称和要访问哪个控制器(映射成了路径)，但是并没有指定端口号到底是 8001, 还是 8002.
         return restTemplate.getForObject("http://PRODUCTDATASERVICE/listProduct", List.class);
     Ribbon 不用通过 url 和端口号来访问微服务的，而是通过微服务的名称来方法的。
+    listProduct 表示访问哪个控制器
 
 5.启动类设置：
     5.1 添加注解 @EnableDiscoveryClient      //表示用于发现 eureka 注册中心的微服务。
@@ -46,4 +47,4 @@
 
 
 7. 启动顺序：
-    Eureka 服务端 -> Eureka 客户端 -> Ribbon 客户端负载均衡。
+    Eureka 服务端 -> 数据服务 -> Ribbon 客户端负载均衡（视图微服务）。

@@ -1,11 +1,11 @@
 1. 什么是服务链路追踪？
     我们现在已经有两个微服务，分别是数据服务和视图服务，随着业务的增加，就会有越来越多的微服务存在，
     他们之间也会有更加复杂的调用关系。这个调用关系，仅仅通过观察代码，会越来越难以识别，
-    所以就需要通过 zipkin 服务链路追踪服务器 这个东西来用图片进行识别了。
+    所以就需要通过 zipkin 服务链路追踪服务器了。
 
 2. 使用 zipkin 前：
     1. 添加依赖：需要给子项目的 pom.xml 添加 zipkin 的jar包, 因为几乎所有的子项目都需要该
-        zipkin 的依赖， 所以可以在父项目中添加也是一样的。
+        zipkin 的依赖， 所以可以在父项目中添加，效果也是一样的。
         <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-zipkin</artifactId>
@@ -20,9 +20,7 @@
         	return Sampler.ALWAYS_SAMPLE;
         }
 
-    3. 修改 application.yml 配置文件，希望被追踪的都需要修改
-
-       添加如下配置：
+    3. 修改 application.yml 配置文件，希望被追踪的微服务都需要修改，添加如下配置：
 
        spring:
          zipkin:
@@ -32,9 +30,9 @@
 3. 使用 zipkin：
     1.  需要启动链路追踪服务器，这个启动的办法是下载 zipkin-server-(版本号)-exec.jar， 然后用如下命令启动：
         java -jar zipkin-server-2.10.1-exec.jar
-    2. 挨个启动 eureka-server, 修改后的 product-data-service 和 product-view-service-feign 。
-       ( product-view-service-ribbon 后续不再使用，所以既没有被改造，也不用再启动了)
+    2. 挨个启动: eurekaServer, 修改后的 productDataService 和 productViewServiceFeign 。
+       ( productViewServiceRibbon 后续不再使用，所以既没有被改造，也不用再启动了)
     3. 访问一次 http://127.0.0.1:8012/listProducts 通过 Feign 视图微服务去访问数据微服务，
-        这样链路追踪服务器才知道有这事儿发生~
+        这样链路追踪服务器才知道有这事发生~
     4. 然后打开链路追踪服务器 http://localhost:9411/zipkin/dependency/ 就可以看到
-       视图微服务调用数据微服务 的图形了。
+       视图微服务调用数据微服务 的图片了。

@@ -1,0 +1,53 @@
+前提，我们需要提供一个配置服务器和一个 Feign 微服务
+
+1. 获取配置服务器上的配置信息，不需要创建新的微服务。哪些微服务需要配置信息，
+    就在原基础上进行修改就行了。
+
+2. 以 Feign 微服务为例，我们获取配置服务器上的版本号:
+
+------------------------------------------配置客户端--------------------------------------------
+3. 配置客户端：
+    1. 修改 Feign 项目的 pom.xml 文件:
+        添加 spring-cloud-starter-config 组件，表示用于访问配置服务器
+
+    2. 在 resources 目录下创建 bootstrap.yml 配置文件：
+        1.该配置文件与 application.yml 的简单区别是：
+            bootstrap.yml是先启动，而 application.yml 是后启动的，
+            并且一些系统方面的配置需要在 bootstrap.yml 里进行配置
+        2. 访问配置服务器，添加如下配置：
+            spring:
+              cloud:
+                config:
+                #配置文件的分支
+                  label: master
+
+                  #这里的 dev 和 github 上的 配置文件名 "feign项目 + -dev.properties"中的 dev 是有关联的
+                  #也就是说两者一定要一样，否则配置信息无法被扫描到。
+                  profile: dev
+                  discovery:
+                    enabled: true
+                    #定位配置服务器，通过微服务的名称去访问（其实是通过名称去访问被注册到注册中心的微服务）
+                    service-id: configServer
+
+        3. 将访问 Eureka 注册中心的配置提到 bootstrap.yml 文件中，
+           注释 application.yml 对应的代码
+
+    3. 修改 controller 类：（其实不一定是修改 controller 类的，也可以是其他的类，
+       只不过我们想将版本号通过前端的页面来显示而已）：
+            1. 添加注解 @RefreshScope，表示让在 application.properties 里获取到的变量
+               也能通过 @Value 注解正常注入。
+            2. 添加如下代码来获取配置信息，注意 version 是和远程配置文件的 version 是一一对应的关系：
+
+                    //增加这个属性，就可以从 configServer 获取 version 信息了。
+                    @Value("${version}")
+                    private String version;
+            3. 将 version 发送给前端页面
+
+    4. 启动后访问路径 http://localhost:8012/listProduct
+
+------------------------------------------配置客户端--------------------------------------------
+
+
+4. 启动顺序：
+    Eureka 服务端 -> ConfigServer 配置服务 -> DataServer 数据微服务 -> Feign 客户端
+

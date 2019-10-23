@@ -1,0 +1,35 @@
+#将 application.yml 的访问注册中心的 url 地址的配置信息移到
+#bootstrap.yml
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+#提供了 service-id: configServer, 这个是配置服务器在 eureka server
+#里的服务名称，这样就可以定位 configServer了。
+spring:
+  cloud:
+    config:
+    #分支
+      label: master
+      #配置文件名为 dev
+      profile: dev
+      discovery:
+        enabled: true
+        #定位配置服务器
+        service-id: configServer
+    #新增 bus 总线的配置
+    bus:
+      enabled: true
+      trace:
+        enabled: true
+  #新增 rabbitMQ 配置
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+
+
+

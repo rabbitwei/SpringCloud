@@ -1,0 +1,14 @@
+1. 出现 java.net.ConnectException: Connection refused 异常的原因及解决方法
+
+原因：接被拒绝异常。
+解决方式：
+    1.1. 杀死占用端口号（一般为8080）的进程，释放端口；
+    1.2. 彻底关闭 Tomcat 服务器，或者重新启动项目。
+
+2. Error creating bean with name 'scopedTarget.productController':
+    Injection of autowired dependencies failed; nested exception is java.lang.IllegalArgumentException:
+    Could not resolve placeholder 'version' in value "${version}"
+
+原因： 找不到远程的配置文件。
+解决方式：
+    远程配置文件的文件名一定采用这种格式："feign项目名"+‘-dev.properties ’

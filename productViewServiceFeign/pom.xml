@@ -46,17 +46,36 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
+        <!--增加一个 spring-cloud-starter-config 用于访问配置服务器-->
+        <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-config -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+
+        <!--用于访问路径：/actuator/bus-refresh-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!--用于支持 rabbitmq-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+        </dependency>
+
+
+
+
         <!--添加对 zipkin 链路追踪的支持
             注意不要使用 2.0.0 版本的 zipkin。-->
         <!--因为子项目都几乎需要该 zipkin 的依赖，所以在父项目中添加， 子项目获取就行了-->
         <!--<dependency>-->
-            <!--<groupId>org.springframework.cloud</groupId>-->
-            <!--<artifactId>spring-cloud-starter-zipkin</artifactId>-->
-            <!--<version>2.1.2.RELEASE</version>-->
+        <!--<groupId>org.springframework.cloud</groupId>-->
+        <!--<artifactId>spring-cloud-starter-zipkin</artifactId>-->
+        <!--<version>2.1.2.RELEASE</version>-->
         <!--</dependency>-->
-
-
-
 
         <dependency>
             <groupId>junit</groupId>

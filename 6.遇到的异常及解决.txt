@@ -1,6 +1,0 @@
-1. 出现 java.net.ConnectException: Connection refused 异常的原因及解决方法
-
-原因：接被拒绝异常。
-解决方式：
-    1.1. 杀死占用端口号（一般为8080）的进程，释放端口；
-    1.2. 彻底关闭 Tomcat 服务器，或者重新启动项目。

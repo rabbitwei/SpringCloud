@@ -25,7 +25,7 @@
 
 *添加 Eureka 服务端（暂时只有一个）
 EurekaServer ，它扮演的角色是注册中心，用于注册各种微服务，以便于其他微服务找到和访问。
-3.在父项目下添加 model, 使用 Maven 创建，表示该分布式的注册中心或者是 Eureka 服务器类
+3.在父项目下添加 model, 使用 Maven 创建，表示该分布式的注册中心或者是 Eureka 服务器
     3.1 注意 eureka 服务器类需要在 pom.xml 中添加如下依赖
         <!--spring-cloud-starter-netflix-eureka-server 表示这是个 eureka 服务端。-->
        <dependency>
@@ -37,7 +37,7 @@ EurekaServer ，它扮演的角色是注册中心，用于注册各种微服务�
          new SpringApplicationBuilder(EurekaServerApplication.class).run(args); 来启动
     3.3 启动之前，先配置信息（在 src 目录下添加 resources 目录， 并添加 application.yml 配置文件，
         resources 默认没有的）
-        配置文件主要设置的是该 Eureka 服务端的 端口， 对外的被访问 url地址, 应用程序名
+        配置文件主要设置的是该 Eureka 服务端的 端口， 对外被访问的 url地址, 应用程序名
 
 *添加 Eureka 客户端（可以多个）
 4.在父项目下添加 model, 使用 Maven 创建，表示该分布式的客户端
@@ -56,7 +56,7 @@ EurekaServer ，它扮演的角色是注册中心，用于注册各种微服务�
         并设置为 Eureka 的客户端 （添加注解@EnableEurekaClient），启动类使用
         new SpringApplicationBuilder(ProductDataService.class).run(args);
     4.3 启动之前也需要添加 application.yml， 类似上面的 3.3步骤。不过不同的是这个是客户端，
-        上面的服务端。主要设置端口，应用程序名，设置访问注册中心的url地址（即访问服务端）
+        上面的是服务端。主要设置端口，应用程序名，设置访问注册中心的url地址（即访问服务端）
 
 
 5.注意
