@@ -5,6 +5,7 @@ import brave.sampler.Sampler;
 import cn.hutool.core.util.NetUtil;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 @EnableEurekaClient
 @EnableDiscoveryClient      //表示用于发现注册中心的微服务
 @EnableFeignClients         // 表示用于使用 Feign 方式， 即表示该应用是 Feign 客户端
+@EnableCircuitBreaker       // 使得可以把信息共享给监控中心。
 public class ProductViewServiceFeignApplication 
 {
     public static void main( String[] args )

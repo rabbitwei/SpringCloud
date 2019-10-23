@@ -1,0 +1,21 @@
+server:
+  port: 8040
+spring:
+  application:
+    name: productServiceZuul
+
+#进行了路由映射
+zuul:
+  routes:
+    #路径一
+    api-a:
+      #路径名
+      path: /api-data/**
+      #路径访问的微服务名称
+      serviceId: PRODUCTDATASERVICE
+    #路径二
+    api-b:
+      path: /api-view/**
+      serviceId: PRODUCTVIEWSERVICEFEIGN
+
+

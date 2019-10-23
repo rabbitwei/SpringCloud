@@ -1,0 +1,60 @@
+0. 需求
+    针对一个微服务做的断路器监控会很比较简单，但是微服务通常会是多个实例组成的一个集群。
+    倘若集群里的实例比较多，难道要挨个挨个去监控这些实例吗？
+    何况有时候，根据集群的需要，会动态增加或者减少实例，监控起来就更麻烦了。
+    所以为了方便监控集群里的多个实例，springCloud 提供了一个 turbine 项目，
+    它的作用是把一个集群里的多个实例汇聚在一个 turbine里，然后再在
+    断路器监控里查看这个 turbine, 这样就能够在集群层面进行监控啦。
+
+1. 使用断路器聚合监控（Turbine）的步骤：
+    1. 新建名为 hystrixDashboard 的 model, 使用 maven 来创建， 修改 pom.xml 文件：
+        1. 添加 spring-cloud-starter-netflix-eureka-client， 对 eureka 客户端的支持
+        2. 添加 spring-boot-starter-web， 对 web 的支持
+        3. 添加 spring-boot-starter-actuator， 用于访问路径：/actuator/bus-refresh
+        4. 添加 spring-cloud-starter-netflix-hystrix， 对 hystix 断路器的支持
+        5. 添加 spring-cloud-starter-netflix-hystrix-dashboard，
+           对 hystrix-dashboard 的支持
+        6. 添加 spring-cloud-starter-netflix-turbine，对 turbine 的支持
+
+    2. 启动类 ProductServiceTurbineApplication 的设置，该类主要是断路器集合监控启动类
+         1. 添加 @SpringBootApplication , 表示该类是 SpringBoot 的程序
+         2. 添加 @EnableTurbine ， 表示该类是 断路器集合监控类（主要的）
+
+         使用如下代码来启动该类：
+         new SpringApplicationBuilder(ProductServiceTurbineApplication.class).run(args);
+
+
+    3.新增配置文件 application.yml (resources 目录下的文件， resources 默认是没有的)
+        spring:
+          application:
+            name: turbine
+        server:
+          port: 8012
+
+        #断路器集合监控的配置
+        turbine:
+          aggregator:
+            cluster-config: default
+          # 配置Eureka中的serviceId列表，表明监控哪些服务
+          app-config: productViewServiceFeign
+          cluster-name-expression: new String("default")
+
+        #访问 eureka 注册中心
+        eureka:
+          client:
+            serviceUrl:
+              defaultZone: http://localhost:8761/eureka/
+
+2. 运行：
+    1. 启动顺序：
+        首先运行 Eureka 服务器，配置服务器， 数据微服务， Feign 视图微服务， 断路器监控微服务，
+        断路器监控聚合微服务
+    2. 运行视图微服务里的 AccessViewService 来周期性地访问
+        http://127.0.0.1:8012/listProduct 因为只有访问了，监控里才能看到数据。
+    3. 打开监控地址
+        http://localhost:8020/hystrix
+    4. 在最上面输入
+        http://localhost:8021/turbine.stream
+    5. 然后点击 Monitor Stream 就可以看到监控信息了。
+
+    注： 在第二步中，可以通过修改 视图微服务的端口号来启动多个微服务。

@@ -1,0 +1,50 @@
+0. 为什么需要断路器 Hystrix?
+    数据微服务不可用的时候,我们访问 http://localhost:8012/listProduct 就会抛出异常，而抛出的
+    异常是 500 错误，用户不清楚是干什么的页面。
+    出现这个问题肯定是难以避免的，比如数据微服务所在的机房停电了。 但是这样的提示信息是非常不友好的，客户也看不懂这个是什么。
+    为了解决这个问题，我们就会引入断路器的概念。
+
+1. 什么是断路器：
+    所谓的断路器，就是当被访问的微服务无法使用的时候，当前服务能够感知这个现象，并且提供一个备用的方案出来。
+    比如我们的数据微服务无法使用了，如果有了断路器，那么视图微服务就能够提示用户该服务无法使用，
+    并且展示给用户相关的信息。 而不会报错或者一直卡在那里
+
+2. 使用断路器 Hystrix的步骤：
+    0. 断路器是配合已有的微服务一起使用的，所以不需要创建新的 model。我们只需要修改 Feign 视图
+       微服务的配置和少部分代码就可以使用断路器了。
+    1. 修改 Feign 视图微服务的 pom.xml 文件， 在原基础上添加如下配置：
+
+        <!-- 用于支持断路器 hystrix-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+        </dependency>
+
+    2. 修改 Feign 视图微服务的 ProductClientFeign 接口（该接口的作用是访问 数据微服务并返回数据）
+       的 @FeignClient 注解， 添加 fallback 属性值，表示发生错误后执行哪个类。
+
+       // 原 FeignClient 注解
+       //@FeignClient(value="PRODUCTDATASERVICE")        //表示使用 Feign 来访问 指定名称的微服务
+
+        //修改后， 添加了 fallback 属性值
+        //如果访问的 PRODUCTDATASERVICE 不可用的话，就调用 ProductClientFeignHystrix 类来进行反馈信息。
+        @FeignClient(value = "PRODUCTDATASERVICE",fallback = ProductClientFeignHystrix.class)
+
+    3. 在 client 包下新建 ProductClientFeignHystrix 类(该类作用是发生错误后执行什么操作)，
+       继承 ProductClientFeign 接口，重写接口的方法。
+
+       @Override
+       public List<Product> listProduct() {
+               List<Product> result = new ArrayList<>();
+               result.add(new Product(0,"产品数据微服务不可用",0));
+               return result;
+       }
+
+    4. 在 Feign 微服务中修改 application.yml 配置文件，在配置文件里开启断路器：
+        feign.hystrix.enabled: true
+
+       注意： 不知为什么写 yml 格式是无法使用断路器， 而写成了 properties 格式却可以使用断路器
+
+3. 运行：
+    1. 启动顺序 Eureka 服务端， ConfigServer 配置服务器， Feign 视图微服务
+    2. 没有启动数据微服务， 才能看到断路器在 Feign 视图微服务中的应用。

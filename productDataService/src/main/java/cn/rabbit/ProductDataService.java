@@ -20,7 +20,7 @@ public class ProductDataService
             System.exit(1);
         }
 
-        int port = 8002;
+        int port = 8001;
         if (!NetUtil.isUsableLocalPort(port)) {
             System.err.printf("端口%d被占用了，无法启动%n", port );
             System.exit(1);

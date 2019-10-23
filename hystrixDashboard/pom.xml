@@ -9,9 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>productViewServiceFeign</artifactId>
+    <artifactId>hystrixDashboard</artifactId>
 
-    <name>productViewServiceFeign</name>
+    <name>hystrixDashboard</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
 
@@ -22,35 +22,28 @@
     </properties>
 
     <dependencies>
-        <!--添加 eureka 客户端的支持-->
+        <!--对 eureka 客户端的支持-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
 
-        <!--添加 spring boot 对 web 的支持-->
+        <!--对 web 的支持-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!--添加 Feign 的支持-->
+        <!--对 hystrix 的支持-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
         </dependency>
 
-        <!--添加 thymeleaf 的支持-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-
-        <!--增加一个 spring-cloud-starter-config 用于访问配置服务器-->
-        <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-config -->
+        <!--对 hystrix dashboard（面板） 的支持-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
+            <artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
         </dependency>
 
         <!--用于访问路径：/actuator/bus-refresh-->
@@ -59,28 +52,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!--用于支持 rabbitmq-->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
-        </dependency>
-
-        <!-- 用于支持断路器 hystrix-->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
-        </dependency>
 
 
 
-        <!--添加对 zipkin 链路追踪的支持
-            注意不要使用 2.0.0 版本的 zipkin。-->
-        <!--因为子项目都几乎需要该 zipkin 的依赖，所以在父项目中添加， 子项目获取就行了-->
-        <!--<dependency>-->
-        <!--<groupId>org.springframework.cloud</groupId>-->
-        <!--<artifactId>spring-cloud-starter-zipkin</artifactId>-->
-        <!--<version>2.1.2.RELEASE</version>-->
-        <!--</dependency>-->
+
+
+
 
         <dependency>
             <groupId>junit</groupId>

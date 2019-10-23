@@ -14,4 +14,4 @@ eureka:
 
 #一定要设置端口
 server:
-  port: 8002
+  port: 8001

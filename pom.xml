@@ -13,6 +13,9 @@
         <module>productViewServiceRibbon</module>
         <module>productViewServiceFeign</module>
         <module>configServer</module>
+        <module>hystrixDashboard</module>
+        <module>turbine</module>
+        <module>zuul</module>
     </modules>
 
     <!--创建 Maven 项目的时候已存在-->

@@ -1,0 +1,60 @@
+0.为何要用网关:
+    我们现在有两种微服务，分别是数据微服务和视图微服务。
+    他们有可能放在不同的 ip 地址上，有可能是不同的端口。
+    为了访问他们，就需要记录这些地址和端口。 而地址和端口都可能会变化，这就增加了访问者的负担。
+
+    所以这个时候，我们就可以用网关来解决这个问题。
+    而且我们只需要记住网关的地址和网关的端口号就行了。
+    如果要访问数据服务，访问地址 http://ip:port/api-data/listProduct即可。
+    如果要访问视图服务，访问地址 http://ip:port/api-view/listProduct 即可。
+
+1. 使用网关（Zuul）的步骤：
+     1. 新建名为 zull 的 model, 使用 maven 来创建， 修改 pom.xml 文件：
+        1. 添加 spring-cloud-starter-netflix-eureka-client， 对 eureka 客户端的支持
+        2. 添加 spring-boot-starter-web， 对 web 的支持
+        6. 添加 spring-cloud-starter-netflix-zuul，对 zuul 的支持（主要）
+
+     2. 启动类 ProductServiceZuulApplication 的设置，该类主要是 Zuul 网关的启动类
+        1. 添加 @SpringBootApplication 注解 , 表示该类是 SpringBoot 的程序
+        2. 添加 @EnableDiscoveryClient 注解， 发现注册中心
+        3. 添加 @EnableEurekaClient    注解， 表示 eureka 客户端
+        4. 添加 @EnableZuulProxy       注解， 表示 zuul 网关类（主要）
+
+        使用如下代码来启动该类：
+           new SpringApplicationBuilder(ProductServiceZuulApplication.class).run(args);
+
+     3.新增配置文件 application.yml (resources 目录下的文件， resources 默认是没有的)
+       重要的是进行路由映射：
+            server:
+              port: 8040
+            spring:
+              application:
+                name: productServiceZuul
+
+            #进行了路由映射
+            zuul:
+              routes:
+                #路径一
+                api-a:
+                  #路径名
+                  path: /api-data/**
+                  #路径访问的微服务名称
+                  serviceId: PRODUCTDATASERVICE
+                #路径二
+                api-b:
+                  path: /api-view/**
+                  serviceId: PRODUCTVIEWSERVICEFEIGN
+
+2. 运行：
+    1. 启动顺序：
+        首先运行 Eureka 服务器，配置服务器， 数据微服务， Feign 视图微服务， zuul 网关
+        （断路器监控微服务， 断路器监控聚合微服务可以不启动）
+
+    2. 接着访问地址：
+        http://localhost:8040/api-data/listProduct
+        http://localhost:8040/api-view/products
+
+    这样就可以访问数据微服务和视微服务集群了，并且无需去记住那么多ip地址和端口号了。
+    （ 虽然这里集群只有一个实例。。。有兴趣可以多启动几个不同端口号的实例）
+
+

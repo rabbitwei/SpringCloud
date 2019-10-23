@@ -13,7 +13,10 @@ Feign 客户端， 通过 注解方式 访问 访问 productDataService 服务�
  */
 
 //这里就是访问微服务，然后从微服务的指定路径获取到 数据
-@FeignClient(value="PRODUCTDATASERVICE")        //表示使用 Feign 来访问 指定名称的微服务
+//@FeignClient(value="PRODUCTDATASERVICE")        //表示使用 Feign 来访问 指定名称的微服务
+
+//如果访问的 PRODUCTDATASERVICE 不可用的话，就调用 ProductClientFeignHystrix 来进行反馈信息。
+@FeignClient(value = "PRODUCTDATASERVICE",fallback = ProductClientFeignHystrix.class)
 public interface ProductClientFeign {
     @GetMapping("/listProduct")                 //访问微服务的哪个路径
     List<Product> listProduct();
